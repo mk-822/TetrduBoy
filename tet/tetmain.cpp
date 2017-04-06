@@ -12,6 +12,7 @@ char BL_DATA[7][2][4];
 
 #define BL_OFFSET_X 2
 #define BL_OFFSET_Y 2
+#define FIX_INTERVAL 30
 
 int GetRand(int max){
   return (random() / 100) % max;
@@ -96,7 +97,7 @@ void TetrisGame::update(){
 				spin=0;
 			error = blockGen(spin, next, &block, field);
 			if(error){
-				scene=2;
+				scene=GAME_OVER;
 				break;
 			}
 			fixed_flag = 0;
@@ -232,16 +233,26 @@ void TetrisGame::update(){
 
 void TetrisGame::draw()
 {
+  const int FIELD_OFFSET_X = 40;
+  const int FIELD_OFFSET_Y = -5;
+  
   for(int i=0; i<4; i++){
-    arduboy.drawPixel(block.x[i], block.y[i]);
+    arduboy.drawRect(
+      block.x[i] * 3 + FIELD_OFFSET_X,
+      block.y[i] * 3 + FIELD_OFFSET_Y, 2, 2);
   }
   
-  for(int j=0 ; j<24 ; j++){
-    for(int i=0 ; i<14 ; i++){
+  for(int j=BL_OFFSET_Y ; j<24-BL_OFFSET_Y; j++){
+    for(int i=BL_OFFSET_X ; i<14-BL_OFFSET_X ; i++){
       if(*(field+i*24+j) != 0)
-        arduboy.drawPixel(i, j);
+        arduboy.drawRect(
+          i * 3 + FIELD_OFFSET_X, j * 3 + FIELD_OFFSET_Y, 2, 2);
     }
   }
+
+  arduboy.drawRect(43, 1, 2, 62);
+  arduboy.drawRect(76, 1, 2, 62);
+  arduboy.drawRect(45, 61, 31, 2);
 }
 
 int TetrisGame::blockErace(char* field)
