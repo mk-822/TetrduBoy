@@ -232,11 +232,35 @@ void TetrisGame::draw()
   const int FIELD_OFFSET_X = 43;
   const int FIELD_OFFSET_Y = -5;
 
+  bool flashing = arduboy.frameCount % 2;
+
   // 現在のブロック
   for(int i=0; i<4; i++){
     arduboy.drawRect(
       block.x[i] * 3 + FIELD_OFFSET_X,
       block.y[i] * 3 + FIELD_OFFSET_Y, 2, 2);
+      
+    if(flashing){
+      // 枠を点滅させる
+      arduboy.drawRect(
+        block.x[i] * 3 + FIELD_OFFSET_X - 1,
+        block.y[i] * 3 + FIELD_OFFSET_Y - 1, 4, 4);
+
+      // ゴースト
+      int j=0;
+      for(; j<20 ; j++){
+        blockMove(0,1,&block);
+        if(blockJudge(&block, field)){
+          break;
+        }
+      }
+      arduboy.drawRect(
+        block.x[i] * 3 + FIELD_OFFSET_X,
+        block.y[i] * 3 + FIELD_OFFSET_Y, 2, 2);
+      for(; j>=0 ; j--){
+        blockMove(0,-1,&block);
+      }
+    }
   }
 
   // フィールド
