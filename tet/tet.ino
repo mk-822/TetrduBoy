@@ -2,7 +2,7 @@
 #include "tetmain.h"
 
 Arduboy2 arduboy;
-TetrisGame game;
+TetrisGame *game;
 
 int count = 0;
 
@@ -10,7 +10,8 @@ void setup() {
   arduboy.begin();
   arduboy.setFrameRate(60);
   arduboy.initRandomSeed();
-  game.initialize();
+  game = new TetrisGame();
+  game->initialize();
 }
 
 void loop() {
@@ -19,7 +20,7 @@ void loop() {
     return;
 
   arduboy.clear();
-  game.update();
-  game.draw();
+  game->update();
+  game->draw();
   arduboy.display();
 }

@@ -2,13 +2,10 @@
 #include "stdio.h"
 #include "tetmain.h"
 #include "blocks.h"
-#include <Arduboy2.h>
+#include "images.h"
 
+#include <Arduboy2.h>
 extern Arduboy2 arduboy;
-char NEXT_DATA[7][4][4];
-char BL_ADJ_DATA[7][2][4];
-char BL_CENTER_DATA[7][2];
-char BL_DATA[7][2][4];
 
 #define BL_OFFSET_X 2
 #define BL_OFFSET_Y 2
@@ -18,7 +15,6 @@ int GetRand(int max){
   return (random() / 100) % max;
 }
   
-//ここからメイン関数
 int TetrisGame::initialize()
 {
 	//各種変数初期化
@@ -30,9 +26,9 @@ int TetrisGame::initialize()
 
 	//ブロック・ブロック補正情報を定義ファイルから読み込み
   const char *ptr = BLOCK_DEF;
-	for(int i=0 ; i<28 ; i++){
-    for(int j=0 ; j<4 ; j++){
-      NEXT_DATA[i/4][i%4][j] = pgm_read_word_near(ptr++);
+  for(int j=0 ; j<7 ; j++){
+	  for(int i=0 ; i<16 ; i++){
+      NEXT_DATA[j][i/4][i%4] = pgm_read_word_near(ptr++);
     }
 	}
 	for(int i=0 ; i<14 ; i++){
@@ -233,15 +229,17 @@ void TetrisGame::update(){
 
 void TetrisGame::draw()
 {
-  const int FIELD_OFFSET_X = 40;
+  const int FIELD_OFFSET_X = 43;
   const int FIELD_OFFSET_Y = -5;
-  
+
+  // 現在のブロック
   for(int i=0; i<4; i++){
     arduboy.drawRect(
       block.x[i] * 3 + FIELD_OFFSET_X,
       block.y[i] * 3 + FIELD_OFFSET_Y, 2, 2);
   }
-  
+
+  // フィールド
   for(int j=BL_OFFSET_Y ; j<24-BL_OFFSET_Y; j++){
     for(int i=BL_OFFSET_X ; i<14-BL_OFFSET_X ; i++){
       if(*(field+i*24+j) != 0)
@@ -250,9 +248,30 @@ void TetrisGame::draw()
     }
   }
 
-  arduboy.drawRect(43, 1, 2, 62);
-  arduboy.drawRect(76, 1, 2, 62);
-  arduboy.drawRect(45, 61, 31, 2);
+  // ステージ枠
+  arduboy.drawRect(46, 1, 2, 62);
+  arduboy.drawRect(79, 1, 2, 62);
+  arduboy.drawRect(48, 61, 31, 2);
+
+  // ネクスト枠
+  arduboy.drawBitmap(86, 13, IMG_NEXT, 16, 8);
+  arduboy.drawRect(83, 15, 2, 21);
+  arduboy.drawRect(103, 15, 2, 21);
+  arduboy.drawRect(85, 34, 18, 2);
+
+  // ネクスト本体
+  int NEXT_OFFSET_X = 89;
+  const int NEXT_OFFSET_Y = 21;
+  if(next >= 0){
+    if(next != 0 && next != 2)  // IとO以外は幅3マスなので少しずらす
+      NEXT_OFFSET_X -= 2;
+    for(int x=0; x<4; x++){
+      for(int y=0; y<4; y++){
+        if(NEXT_DATA[next][y][x])
+          arduboy.drawRect(x * 3 + NEXT_OFFSET_X, y * 3 + NEXT_OFFSET_Y, 2, 2);
+      }
+    }
+  }
 }
 
 int TetrisGame::blockErace(char* field)

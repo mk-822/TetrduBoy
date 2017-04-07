@@ -34,6 +34,12 @@ public:
   void draw();
 
 private:
+  // ブロック定義の読み込み先。newしただけでは空っぽ
+  char NEXT_DATA[7][4][4];
+  char BL_ADJ_DATA[7][2][4];
+  char BL_CENTER_DATA[7][2];
+  char BL_DATA[7][2][4];
+
 	char field[14 * 24];	//フィールド
 	int level;			//ゲームレベル
 	char scene;			//現在のシーン(ゲーム状態)
